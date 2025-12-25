@@ -19,19 +19,28 @@ func NewTodoHandler(s *service.TodoService) *TodoHandler {
 
 func (h *TodoHandler) Todos(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method == http.MethodPost {
-	var todo models.Todo
-	json.NewDecoder(r.Body).Decode(&todo)
-	h.service.Create(todo)
-	w.WriteHeader(http.StatusCreated)
+	switch r.Method {
+		
+		case http.MethodPost:
+			var todo models.Todo
+			if err := json.NewDecoder(r.Body).Decode(&todo); err != nil {
+				http.Error(w, "invalid request body", http.StatusBadRequest)
+				return
+			}
 
-} else if r.Method == http.MethodGet {
-	todos := h.service.GetAll()
-	json.NewEncoder(w).Encode(todos)
+			h.service.Create(todo)
+			w.WriteHeader(http.StatusCreated)
 
-} else {
-	w.WriteHeader(http.StatusMethodNotAllowed)
-}
+		case http.MethodGet:
+			todos := h.service.GetAll()
+			if err := json.NewEncoder(w).Encode(todos); err != nil {
+				http.Error(w, "failed to encode response", http.StatusInternalServerError)
+			}
+
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+
 
 }
 
