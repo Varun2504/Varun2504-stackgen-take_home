@@ -24,6 +24,7 @@ func (s *TodoService) Create(todo models.Todo) error {
 	}
 
 	s.todos[todo.ID] = todo
+	
 	return nil
 } // With validation
 
@@ -36,6 +37,10 @@ func (s *TodoService) GetAll() []models.Todo {
 	return result
 }
 
-func (s *TodoService) Delete(id string) {
+func (s *TodoService) Delete(id string) error {
+	if _, exists := s.todos[id]; !exists {
+		return errors.New("invalid id")
+	}
 	delete(s.todos, id)
+	return nil
 }
