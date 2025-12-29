@@ -45,17 +45,16 @@ All data is stored in memory, keeping the service simple and easy to reason abou
 | Go | 1.20 or later |
 
 Verify Go installation:
+```bash
 go version
+```
 
 ## Running the Server
 
 From the project root directory:
-
+```bash
 go run main.go
-
-The server will start at:
-
-http://localhost:8080
+```
 
 ## API Endpoints
 
