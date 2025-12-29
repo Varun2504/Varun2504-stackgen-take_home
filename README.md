@@ -70,16 +70,26 @@ To run all unit tests:
 go test ./...
 
 ### Example Requests
-Create a TODO
+
+#### Create a TODO
+```bash
 curl -X POST http://localhost:8080/todos \
--H "Content-Type: application/json" \
--d '{"id":"1","title":"Learn Go","completed":false}'
+  -H "Content-Type: application/json" \
+  -d '{"id":"1","title":"Learn Go","completed":false}'
+```
+
 
 Get All TODOs
+
+```bash
 curl http://localhost:8080/todos
+```
 
 Delete a TODO
+```bash
 curl -X DELETE http://localhost:8080/todos/1
+```
+Deletes the TODO with ID `1` (the last path parameter represents the TODO ID).
 
 ## Assumptions & Limitations
 
