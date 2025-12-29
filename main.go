@@ -11,7 +11,8 @@ func main() {
 	todoHandler := handlers.NewTodoHandler(todoService)
 
 	http.HandleFunc("/todos", todoHandler.Todos)
-	http.HandleFunc("/todos/", todoHandler.DeleteTodo)
+	http.HandleFunc("/todos/", todoHandler.Todos)
+
 
 	http.ListenAndServe(":8080", nil)
 }

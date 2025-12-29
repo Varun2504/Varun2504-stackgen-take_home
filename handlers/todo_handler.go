@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
-
 	"stack-gen-TODO/models"
 	"stack-gen-TODO/service"
 )
@@ -18,44 +17,40 @@ func NewTodoHandler(s *service.TodoService) *TodoHandler {
 }
 
 func (h *TodoHandler) Todos(w http.ResponseWriter, r *http.Request) {
-
 	switch r.Method {
+
+	case http.MethodGet:
 		
-		case http.MethodPost:
-			var todo models.Todo
-			if err := json.NewDecoder(r.Body).Decode(&todo); err != nil {
-				http.Error(w, "invalid request body", http.StatusBadRequest)
-				return
-			}
-
-			h.service.Create(todo)
-			w.WriteHeader(http.StatusCreated)
-
-		case http.MethodGet:
-			todos := h.service.GetAll()
-			if err := json.NewEncoder(w).Encode(todos); err != nil {
-				http.Error(w, "failed to encode response", http.StatusInternalServerError)
-			}
-
-		default:
-			w.WriteHeader(http.StatusMethodNotAllowed)
+		if r.URL.Path != "/todos" && r.URL.Path != "/todos/" {
+			http.NotFound(w, r)
+			return
 		}
 
+		todos := h.service.GetAll()
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(todos)
 
-}
+	case http.MethodPost:
+		var todo models.Todo
+		if err := json.NewDecoder(r.Body).Decode(&todo); err != nil {
+			http.Error(w, "invalid request body", http.StatusBadRequest)
+			return
+		}
 
-func (h *TodoHandler) DeleteTodo(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
+		h.service.Create(todo)
+		w.WriteHeader(http.StatusCreated)
+
+	case http.MethodDelete:
+		id := strings.TrimPrefix(r.URL.Path, "/todos/")
+		if id == "" || id == "todos" {
+			http.Error(w, "missing todo id", http.StatusBadRequest)
+			return
+		}
+
+		h.service.Delete(id)
+		w.WriteHeader(http.StatusNoContent)
+
+	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
 	}
-
-	id := strings.TrimPrefix(r.URL.Path, "/todos/")
-
-	if err := h.service.Delete(id); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
 }
